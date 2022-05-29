@@ -487,6 +487,7 @@ select cname,max(rating) as hight_rating from customers group by city;
 +----------+--------------+
 
 41) Write a query that calculates the amount of the salesperson’s commission on each order by a customer with a rating above 100.00.
+
 +------------+
 | commission |
 +------------+
@@ -614,4 +615,183 @@ select * from customers where rating > 100.00 or city = 'rome';
 +---------+------+
 
 53) Find the total amount in orders for each salesperson where their total of amounts are greater than the amount of the largest order in the table.
+select sname, sum(AMT) from orders as ord inner join salespeople as sp on ord.SNUM=sp.SNUM group by ord.snum having ord.max(AMT)<sp.sum(AMT);
++--------+--------------------+
+| sname  | sum(AMT)           |
++--------+--------------------+
+| Rifkin | 1116.8500000000001 |
+| Peel   |           15382.07 |
+| Serres |            6546.15 |
++--------+--------------------+
 
+54) Write a query that selects all orders save those with zeroes or NULL in the amount file.
+
+
+
+
+56) Find all salespeople name and commission.
+select sname, comm from salespeople;
++---------+------+
+| sname   | comm |
++---------+------+
+| Peel    |   12 |
+| Serres  |   13 |
+| Motika  |   11 |
+| Rifkin  |   15 |
+| AxelRod |   10 |
+| Fran    |   25 |
++---------+------+
+
+57) Write a query that produces the names and cities of all customers with the same rating as Hoffman. Write the query using Hoffman’s cnum
+rather than his rating, so that it would still be usable if his rating is changed.
+select cname,city from customers where rating=(select rating from customers where cnum='2001'); 
++---------+--------+
+| cname   | city   |
++---------+--------+
+| Hoffman | London |
+| Clemens | London |
+| Pereira | Rome   |
++---------+--------+
+
+58) Find all salespeople for whom there are customers that follow them in alphabetical order.
+
+
+
+59) Write a query that produces the names and ratings of all customers who have average orders.
+select cname,rating from customers where cnum in (select cnum from orders having avg(amt));
++----------+--------+
+| cname    | rating |
++----------+--------+
+| Cisneros |    300 |
++----------+--------+
+
+60) Find the SUM of all Amounts from the orders table.
+select sum(AMT) as sum_of_amt from orders;
++------------+
+| sum_of_amt |
++------------+
+|    26748.4 |
++------------+
+
+61) Write a SELECT command that produces the order number, amount, and the date from rows in the order table.
+
+select Onum, Amt,Odate from orders;
++------+---------+------------+
+| Onum | Amt     | Odate      |
++------+---------+------------+
+| 3001 |   18.69 | 10/03/1990 |
+| 3003 |  767.19 | 10/03/1990 |
+| 3002 |  1990.1 | 10/03/1990 |
+| 3005 | 5160.45 | 10/03/1990 |
+| 3006 | 1098.16 | 10/03/1990 |
+| 3009 | 1713.23 | 10/04/1990 |
+| 3007 |   75.75 | 10/04/1990 |
+| 3008 |    4723 | 10/05/1990 |
+| 3010 | 1309.95 | 10/06/1990 |
+| 3011 | 9891.88 | 10/06/1990 |
++------+---------+------------+
+
+62) Count the number of non NULL rating fields in the Customers table (including repeats).
+select count(RATING) as Rating from customers where RATING is not null;
++--------+
+| Rating |
++--------+
+|      7 |
++--------+
+
+63) Write a query that gives the names of both the salesperson and the customer for each order after the order number.
+
+select CUST.cname, SP.sname from orders ORD inner join salespeople SP on ORD.snum=SP.snum inner join customers CUST on CUST.cnum = ORD.cnum;
++----------+---------+
+| cname    | sname   |
++----------+---------+
+| Hoffman  | Peel    |
+| Giovanni | AxelRod |
+| Liu      | Serres  |
+| Grass    | Serres  |
+| Grass    | Serres  |
+| Clemens  | Peel    |
+| Clemens  | Peel    |
+| Cisneros | Rifkin  |
+| Cisneros | Rifkin  |
+| Pereira  | Motika  |
++----------+---------+
+
+64) List the commissions of all salespeople servicing customers in London.
+select comm,cust.* from salespeople sp inner join customers cust on sp.snum=cust.snum where cust.city='london';
++------+------+---------+--------+--------+------+
+| comm | CNUM | CNAME   | CITY   | RATING | SNUM |
++------+------+---------+--------+--------+------+
+|   12 | 2006 | Clemens | London |    100 | 1001 |
+|   12 | 2001 | Hoffman | London |    100 | 1001 |
++------+------+---------+--------+--------+------+
+
+65) Write a query using ANY or ALL that will find all salespeople who have no customers located in their city.
+
+select sp.sname,cust.cname, sp.city,cust.city as customer_city from salespeople sp,customers cust where sp.snum=cust.snum and sp.city!=cust.city;
++---------+----------+-----------+---------------+
+| sname   | cname    | city      | customer_city |
++---------+----------+-----------+---------------+
+| AxelRod | Giovanni | New York  | Rome          |
+| Serres  | Grass    | SanJose   | Berlin        |
+| Rifkin  | Cisneros | Barcelona | SanJose       |
+| Motika  | Pereira  | London    | Rome          |
++---------+----------+-----------+---------------+
+
+66) Write a query using the EXISTS operator that selects all salespeople with customers located in their cities who are not assigned to them.
+ SELECT sp.snum, sp.SNAME ,sp.CITY, cust.CNAME,cust.CITY FROM SalesPeople sp, Customers cust WHERE EXISTS (SELECT cnum FROM Customers WHERE sp.CITY = cust.CITY AND sp.SNUM <> cust.SNUM);
+
+
+
+
+
+
+67) Write a query that selects all customers serviced by Peel or Motika. (Hint: The snum field relates the 2 tables to one another.)
+ select sp.sname ,cust.* from customers cust inner join salespeople sp on cust.snum=sp.snum where sp.sname='peel' or sp.sname='motika';
++--------+------+---------+--------+--------+------+
+| sname  | CNUM | CNAME   | CITY   | RATING | SNUM |
++--------+------+---------+--------+--------+------+
+| Peel   | 2001 | Hoffman | London |    100 | 1001 |
+| Peel   | 2006 | Clemens | London |    100 | 1001 |
+| Motika | 2007 | Pereira | Rome   |    100 | 1004 |
++--------+------+---------+--------+--------+------+
+
+68) Count the number of salespeople registering orders for each day. (If a salesperson has more than one order on a given day, he or she should
+ select count(sp.snum) as SP_registering_ORD,ord.* from salespeople sp inner join orders ord on sp.snum=ord.snum group by sp.snum;
++--------------------+------+---------+------------+------+------+
+| SP_registering_ORD | ONUM | AMT     | ODATE      | CNUM | SNUM |
++--------------------+------+---------+------------+------+------+
+|                  2 | 3001 |   18.69 | 10/03/1990 | 2008 | 1007 |
+|                  3 | 3003 |  767.19 | 10/03/1990 | 2001 | 1001 |
+|                  1 | 3002 |  1990.1 | 10/03/1990 | 2007 | 1004 |
+|                  3 | 3005 | 5160.45 | 10/03/1990 | 2003 | 1002 |
+|                  1 | 3009 | 1713.23 | 10/04/1990 | 2002 | 1003 |
++--------------------+------+---------+------------+------+------+
+
+69) Find all orders attributed to salespeople who live in London.
+select orders.* from orders natural join salespeople where city='london';
++------+---------+------------+------+------+
+| ONUM | AMT     | ODATE      | CNUM | SNUM |
++------+---------+------------+------+------+
+| 3003 |  767.19 | 10/03/1990 | 2001 | 1001 |
+| 3002 |  1990.1 | 10/03/1990 | 2007 | 1004 |
+| 3008 |    4723 | 10/05/1990 | 2006 | 1001 |
+| 3011 | 9891.88 | 10/06/1990 | 2006 | 1001 |
++------+---------+------------+------+------+
+
+70) Find all orders by customers not located in the same cities as their salespeople.
+select ord.*, cust.cname,cust.city from salespeople as sp, customers as cust, orders as ord
+WHERE cust.city <> sp.city AND ord.cnum = cust.cnum AND ord.snum = sp.snum;
+
+
+
+71) Find all salespeople who have customers with more than one current order.
+select sp.sname, count(cust.cnum) as more_then_one_order from salespeople sp inner join customers cust on sp.snum = cust.snum group by cust.snum having count(cust.snum)>1;
++--------+---------------------+
+| sname  | more_then_one_order |
++--------+---------------------+
+| Peel   |                   2 |
+| Serres |                   2 |
++--------+---------------------+
+
+72) Write a query that extracts from the customer’s table every customer assigned to a salesperson, who is currently having at least one another
